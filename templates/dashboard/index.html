@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - FoodOrder{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-800 mb-8">Admin Dashboard</h1>
+
+<!-- Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+  <div class="bg-white rounded-xl shadow-sm p-6">
+    <p class="text-sm text-gray-500 uppercase tracking-wide">Orders Today</p>
+    <p class="text-3xl font-bold text-gray-800 mt-1" id="stat-today">
+      {% with today_count=recent_orders|length %}{{ today_count }}{% endwith %}
+    </p>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm p-6">
+    <p class="text-sm text-gray-500 uppercase tracking-wide">Pending</p>
+    <p class="text-3xl font-bold text-yellow-600 mt-1" id="stat-pending">0</p>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm p-6">
+    <p class="text-sm text-gray-500 uppercase tracking-wide">Revenue</p>
+    <p class="text-3xl font-bold text-green-600 mt-1" id="stat-revenue">$0.00</p>
+  </div>
+</div>
+
+<!-- Recent orders -->
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+  <div class="px-6 py-4 border-b flex items-center justify-between">
+    <h2 class="text-lg font-semibold text-gray-800">Recent Orders</h2>
+    <a href="{% url 'dashboard_orders' %}" class="text-indigo-600 hover:underline text-sm font-medium">View All</a>
+  </div>
+  <table class="w-full text-left">
+    <thead class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wide">
+      <tr>
+        <th class="px-6 py-3">ID</th>
+        <th class="px-6 py-3">Customer</th>
+        <th class="px-6 py-3">Restaurant</th>
+        <th class="px-6 py-3">Total</th>
+        <th class="px-6 py-3">Status</th>
+        <th class="px-6 py-3">Date</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y">
+      {% for order in recent_orders %}
+      <tr class="hover:bg-gray-50 transition">
+        <td class="px-6 py-4 font-medium text-gray-800">#{{ order.pk }}</td>
+        <td class="px-6 py-4 text-gray-600">{{ order.customer }}</td>
+        <td class="px-6 py-4 text-gray-600">{{ order.restaurant.name }}</td>
+        <td class="px-6 py-4 text-gray-800">${{ order.total }}</td>
+        <td class="px-6 py-4">
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-medium
+            {% if order.status == 'PENDING' %}bg-yellow-100 text-yellow-700
+            {% elif order.status == 'CONFIRMED' %}bg-blue-100 text-blue-700
+            {% elif order.status == 'PREPARING' %}bg-orange-100 text-orange-700
+            {% elif order.status == 'READY' %}bg-green-100 text-green-700
+            {% elif order.status == 'DELIVERED' %}bg-gray-100 text-gray-700
+            {% elif order.status == 'CANCELLED' %}bg-red-100 text-red-700
+            {% endif %}">{{ order.get_status_display }}</span>
+        </td>
+        <td class="px-6 py-4 text-gray-500 text-sm">{{ order.created_at|date:"M d, h:i A" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No orders yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Compute stats from the rendered orders
+  (function() {
+    let pending = 0, revenue = 0;
+    {% for order in recent_orders %}
+      {% if order.status == 'PENDING' %}pending++;{% endif %}
+      revenue += {{ order.total }};
+    {% endfor %}
+    document.getElementById('stat-pending').textContent = pending;
+    document.getElementById('stat-revenue').textContent = '$' + revenue.toFixed(2);
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ restaurant.name }} - FoodOrder{% endblock %}
+
+{% block content %}
+<div class="lg:flex lg:gap-8">
+  <!-- Menu items -->
+  <div class="flex-1">
+    <a href="{% url 'restaurant_list' %}" class="text-indigo-600 hover:underline text-sm mb-2 inline-block">&larr; Back to Restaurants</a>
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ restaurant.name }}</h1>
+    <p class="text-gray-500 mb-6">{{ restaurant.description }}</p>
+
+    {% if menu_items %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {% for item in menu_items %}
+      <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition">
+        {% if item.category %}
+        <span class="text-xs font-medium text-indigo-600 uppercase tracking-wide">{{ item.category }}</span>
+        {% endif %}
+        <h3 class="text-lg font-semibold text-gray-800 mt-1">{{ item.name }}</h3>
+        <p class="text-gray-500 text-sm mt-1 mb-3">{{ item.description|default:"" }}</p>
+        <div class="flex items-center justify-between">
+          <span class="text-lg font-bold text-gray-800">${{ item.price }}</span>
+          <button onclick="addToCart({{ restaurant.pk }}, {{ item.pk }}, '{{ item.name|escapejs }}', {{ item.price }})"
+                  class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-12">No menu items available.</p>
+    {% endif %}
+  </div>
+
+  <!-- Cart sidebar -->
+  <div class="lg:w-72 mt-8 lg:mt-0">
+    <div class="bg-white rounded-xl shadow-sm p-5 sticky top-8">
+      <h3 class="font-semibold text-gray-800 mb-3">Your Cart</h3>
+      <p class="text-gray-500 text-sm" id="cart-sidebar-count">0 items</p>
+      <a href="{% url 'cart' %}" id="go-to-cart-btn" class="mt-4 block text-center bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition hidden">Go to Cart</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  updateCartSidebar();
+  function updateCartSidebar() {
+    const count = getCartCount();
+    const el = document.getElementById('cart-sidebar-count');
+    const btn = document.getElementById('go-to-cart-btn');
+    if (el) el.textContent = count + ' item' + (count !== 1 ? 's' : '');
+    if (btn) btn.classList.toggle('hidden', count === 0);
+  }
+  // override addToCart to also update sidebar
+  const _origAdd = addToCart;
+  addToCart = function() { _origAdd.apply(null, arguments); updateCartSidebar(); };
+</script>
+{% endblock %}

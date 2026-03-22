@@ -1,0 +1,8 @@
+{
+  "name": "food-order-app",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "tailwindcss": "^3.4"
+  }
+}

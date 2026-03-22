@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Order Management - FoodOrder{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-800 mb-8">Order Management</h1>
+
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+  <table class="w-full text-left">
+    <thead class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wide">
+      <tr>
+        <th class="px-6 py-3">ID</th>
+        <th class="px-6 py-3">Customer</th>
+        <th class="px-6 py-3">Restaurant</th>
+        <th class="px-6 py-3">Items</th>
+        <th class="px-6 py-3">Total</th>
+        <th class="px-6 py-3">Status</th>
+        <th class="px-6 py-3">Created</th>
+        <th class="px-6 py-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y">
+      {% for order in orders %}
+      <tr class="hover:bg-gray-50 transition" id="order-row-{{ order.pk }}">
+        <td class="px-6 py-4 font-medium text-gray-800">#{{ order.pk }}</td>
+        <td class="px-6 py-4 text-gray-600">{{ order.customer }}</td>
+        <td class="px-6 py-4 text-gray-600">{{ order.restaurant.name }}</td>
+        <td class="px-6 py-4 text-gray-500 text-sm">
+          {% for item in order.items.all %}{{ item.quantity }}x {{ item.menu_item.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        </td>
+        <td class="px-6 py-4 text-gray-800">${{ order.total }}</td>
+        <td class="px-6 py-4">
+          <span id="status-badge-{{ order.pk }}" class="inline-block px-3 py-1 rounded-full text-xs font-medium
+            {% if order.status == 'PENDING' %}bg-yellow-100 text-yellow-700
+            {% elif order.status == 'CONFIRMED' %}bg-blue-100 text-blue-700
+            {% elif order.status == 'PREPARING' %}bg-orange-100 text-orange-700
+            {% elif order.status == 'READY' %}bg-green-100 text-green-700
+            {% elif order.status == 'DELIVERED' %}bg-gray-100 text-gray-700
+            {% elif order.status == 'CANCELLED' %}bg-red-100 text-red-700
+            {% endif %}">{{ order.get_status_display }}</span>
+        </td>
+        <td class="px-6 py-4 text-gray-500 text-sm">{{ order.created_at|date:"M d, h:i A" }}</td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-2">
+            <select id="status-select-{{ order.pk }}" class="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="PENDING" {% if order.status == 'PENDING' %}selected{% endif %}>Pending</option>
+              <option value="CONFIRMED" {% if order.status == 'CONFIRMED' %}selected{% endif %}>Confirmed</option>
+              <option value="PREPARING" {% if order.status == 'PREPARING' %}selected{% endif %}>Preparing</option>
+              <option value="READY" {% if order.status == 'READY' %}selected{% endif %}>Ready</option>
+              <option value="DELIVERED" {% if order.status == 'DELIVERED' %}selected{% endif %}>Delivered</option>
+              <option value="CANCELLED" {% if order.status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+            </select>
+            <button onclick="updateOrderStatus({{ order.pk }})" class="bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-indigo-700 transition">Update</button>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">No orders found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

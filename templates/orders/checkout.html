@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Checkout - FoodOrder{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-800 mb-8">Checkout</h1>
+
+<div class="lg:flex lg:gap-8">
+  <div class="flex-1">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Order Summary</h2>
+      <div id="checkout-items"></div>
+      <div class="border-t mt-4 pt-4 flex justify-between font-bold text-gray-800">
+        <span>Total</span>
+        <span>$<span id="checkout-total">0.00</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:w-96 mt-8 lg:mt-0">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Additional Notes</h2>
+      <textarea id="order-notes" rows="4" placeholder="Any special instructions..."
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"></textarea>
+      <div id="checkout-error" class="hidden bg-red-100 text-red-700 px-4 py-3 rounded-lg mt-4 text-sm"></div>
+      <button onclick="placeOrder()" class="mt-4 w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition">Place Order</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>renderCheckout();</script>
+{% endblock %}

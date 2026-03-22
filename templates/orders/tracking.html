@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.pk }} - FoodOrder{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-800 mb-2">Order #{{ order.pk }}</h1>
+<p class="text-gray-500 mb-8">{{ order.restaurant.name }} &middot; {{ order.created_at|date:"M d, Y h:i A" }}</p>
+
+<!-- Status stepper -->
+<div class="bg-white rounded-xl shadow-sm p-6 mb-8" id="status-section">
+  <div id="cancelled-badge" class="hidden mb-4">
+    <span class="bg-red-100 text-red-700 px-4 py-2 rounded-full font-medium text-sm">Cancelled</span>
+  </div>
+  <div id="status-stepper" class="flex items-center justify-between">
+    {% with steps="PENDING,CONFIRMED,PREPARING,READY,DELIVERED" %}
+    {% for step in steps|make_list %}{% endfor %}
+    {% endwith %}
+  </div>
+  <!-- JS will render the stepper -->
+</div>
+
+<!-- Order items -->
+<div class="bg-white rounded-xl shadow-sm p-6">
+  <h2 class="text-lg font-semibold text-gray-800 mb-4">Items</h2>
+  <table class="w-full text-left">
+    <thead class="text-gray-500 text-sm uppercase tracking-wide border-b">
+      <tr>
+        <th class="pb-2">Item</th>
+        <th class="pb-2">Qty</th>
+        <th class="pb-2 text-right">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order.items.all %}
+      <tr class="border-b last:border-0">
+        <td class="py-3 text-gray-800">{{ item.menu_item.name }}</td>
+        <td class="py-3 text-gray-600">{{ item.quantity }}</td>
+        <td class="py-3 text-gray-800 text-right">${{ item.unit_price }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="border-t mt-2 pt-4 flex justify-between font-bold text-gray-800 text-lg">
+    <span>Total</span>
+    <span>${{ order.total }}</span>
+  </div>
+  {% if order.notes %}
+  <div class="mt-4 bg-gray-50 rounded-lg p-3 text-sm text-gray-600">
+    <strong>Notes:</strong> {{ order.notes }}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const ORDER_ID = {{ order.pk }};
+  const INITIAL_STATUS = "{{ order.status }}";
+  renderStatusStepper(INITIAL_STATUS);
+  pollOrderStatus(ORDER_ID);
+</script>
+{% endblock %}

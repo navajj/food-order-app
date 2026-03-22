@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Restaurants - FoodOrder{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-800 mb-8">Restaurants</h1>
+
+{% if restaurants %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for r in restaurants %}
+  <div class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition">
+    <div class="h-40 bg-gradient-to-br from-indigo-500 to-blue-400 flex items-center justify-center">
+      <span class="text-white text-4xl font-bold opacity-60">{{ r.name|first }}</span>
+    </div>
+    <div class="p-5">
+      <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ r.name }}</h3>
+      <p class="text-gray-500 text-sm mb-4 line-clamp-2">{{ r.description|default:"Delicious food awaits!" }}</p>
+      <a href="{% url 'menu_detail' r.pk %}" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition">View Menu</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-gray-500 text-center py-12">No restaurants available right now.</p>
+{% endif %}
+{% endblock %}

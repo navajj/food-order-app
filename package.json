@@ -2,6 +2,9 @@
   "name": "food-order-app",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "build": "tailwindcss -i ./static/src/input.css -o ./static/css/output.css --minify"
+  },
   "devDependencies": {
     "tailwindcss": "^3.4"
   }
